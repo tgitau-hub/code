@@ -2,55 +2,122 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Text Summarization Using Machine Learning</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-      }
-      .container {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: 400px;
-      }
-      h1 {
-        text-align: center;
-        color: #333;
-      }
-      form {
-        margin-bottom: 20px;
-      }
-      button:hover {
-        background-color: #005663;
-      }
-      #summaryResult {
-        margin-top: 20px;
-        padding: 10px;
-        background-color: #f9f9f9;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Text Summarization</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css" />
+    
+    <!-- PDF.js -->
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.12.313/build/pdf.min.js"></script>
   </head>
   <body>
+    <header>
+      <h2 class="Logo">Text Summarizer</h2>
+      <nav class="navigation">
+        <button class="lgn-btn">Login</button>
+      </nav>
+    </header>
+
+    <!-- Login/Register Popup -->
+    <div class="wrapper">
+      <span class="icon-close"><ion-icon name="close-outline"></ion-icon></span>
+
+      <div class="form-box login">
+        <h2>Login</h2>
+        <form action="#">
+          <div class="input-box">
+            <span class="icon"><ion-icon name="mail"></ion-icon></span>
+            <input type="email" required />
+            <label>Email</label>
+          </div>
+          <div class="input-box">
+            <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+            <input type="password" required />
+            <label>Password</label>
+          </div>
+          <div class="remember-me">
+            <label><input type="checkbox" />Remember Me</label>
+            <a href="#">Forgot Password?</a>
+          </div>
+          <button type="submit" class="btn">Login</button>
+          <div class="login-register">
+            <p>New here? <a href="#" class="register-link">Sign Up</a></p>
+          </div>
+        </form>
+      </div>
+
+      <div class="form-box register">
+        <h2>Register</h2>
+        <form action="#">
+          <div class="input-box">
+            <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
+            <input type="text" required />
+            <label>Username</label>
+          </div>
+          <div class="input-box">
+            <span class="icon"><ion-icon name="mail"></ion-icon></span>
+            <input type="email" required />
+            <label>Email</label>
+          </div>
+          <div class="input-box">
+            <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+            <input type="password" required />
+            <label>Password</label>
+          </div>
+          <div class="remember-me">
+            <label><input type="checkbox" />Agree to terms & Conditions</label>
+          </div>
+          <button type="submit" class="btn">Register</button>
+          <div class="login-register">
+            <p>Already have an account? <a href="#" class="login-link">Login</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Content: Text Summarizer -->
     <div class="container">
-      <h1>Text Summarization Using Machine Learning</h1>
+      <h1>Text Summarization</h1>
       <form id="summarizeForm">
         <label for="urlInput">Enter URL:</label>
-        <input type="text" id="urlInput" name="url" required />
+        <input
+          type="text"
+          id="urlInput"
+          name="url"
+          placeholder="Enter a URL..."
+        />
+
+        <label for="textInput">Or Enter Text:</label>
+        <textarea
+          id="textInput"
+          name="text"
+          placeholder="Paste text here..."
+        ></textarea>
+
+        <label for="fileInput">Or Upload PDF:</label>
+        <input type="file" id="fileInput" accept="application/pdf" />
+
         <button type="submit" id="summarizeButton">Summarize</button>
       </form>
       <div id="summaryResult"></div>
     </div>
+
+    <!-- Axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Ionicons -->
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+    ></script>
+
+    <!-- Summarizer Script -->
     <script src="script.js"></script>
+    <!-- Popup Script -->
+    <script src="script2.js"></script>
   </body>
 </html>

@@ -1,50 +1,143 @@
 const form = document.getElementById("summarizeForm");
 const summaryResult = document.getElementById("summaryResult");
+const fileInput = document.getElementById("fileInput");
+const textInput = document.getElementById("textInput");
+const urlInput = document.getElementById("urlInput");
+
+let alertElement; // Global alert element
 
 form.addEventListener("submit", function (event) {
   event.preventDefault();
-  const url = document.getElementById("urlInput").value;
 
-  // Show loading alert
-  const alertMessage = "Summarizing, please wait...";
-  const alertElement = document.createElement("div");
-  alertElement.textContent = alertMessage;
-  document.body.appendChild(alertElement);
+  const url = urlInput.value.trim();
+  const text = textInput.value.trim();
+  const file = fileInput.files[0];
 
-  // Prepare XMLHttpRequest
-  const xhr = new XMLHttpRequest();
-  xhr.withCredentials = true;
+  showLoadingMessage("Summarizing, please wait...");
 
-  xhr.addEventListener("readystatechange", function () {
-    if (this.readyState === this.DONE) {
-      try {
-        const response = JSON.parse(this.responseText);
-        summaryResult.textContent = response.summary || "Summary not available.";
-      } catch (error) {
-        summaryResult.textContent = "Error processing response.";
-      }
+  if (file) {
+    processPDF(file);
+  } else if (text) {
+    summarizeText(text);
+  } else if (url) {
+    summarizeURL(url);
+  } else {
+    summaryResult.textContent = "Please provide a URL, text, or upload a PDF.";
+    removeAlert();
+  }
+});
 
-      // Remove loading alert only if it exists in the DOM
-      if (document.body.contains(alertElement)) {
-        document.body.removeChild(alertElement);
-      }
-    }
-  });
-
-  // API Endpoint with Dynamic User Input
+// Function to summarize a URL
+function summarizeURL(url) {
   const apiUrl = `https://article-extractor-and-summarizer.p.rapidapi.com/summarize?url=${encodeURIComponent(
     url
   )}&lang=en&engine=2`;
+  fetchData(apiUrl);
+}
 
-  xhr.open("GET", apiUrl);
-  xhr.setRequestHeader(
-    "x-rapidapi-key",
-    "effcfe6caemsh2f846ef3d69d1f9p1f089fjsn08b252090f86"
-  );
-  xhr.setRequestHeader(
-    "x-rapidapi-host",
-    "article-extractor-and-summarizer.p.rapidapi.com"
-  );
+// Function to summarize direct text input
+function summarizeText(text) {
+  const apiUrl =
+    "https://article-extractor-and-summarizer.p.rapidapi.com/summarize-text";
 
-  xhr.send();
-});
+  fetch(apiUrl, {
+    method: "POST",
+    headers: {
+      "x-rapidapi-key": "effcfe6caemsh2f846ef3d69d1f9p1f089fjsn08b252090f86",
+      "x-rapidapi-host": "article-extractor-and-summarizer.p.rapidapi.com",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      summaryResult.textContent = data.summary || "Summary not available.";
+      resetForm();
+      removeAlert();
+    })
+    .catch(() => {
+      summaryResult.textContent = "Error processing response.";
+      removeAlert();
+    });
+}
+
+// Function to process PDF file and extract text
+function processPDF(file) {
+  const reader = new FileReader();
+
+  reader.onload = function () {
+    const typedArray = new Uint8Array(reader.result);
+
+    pdfjsLib.getDocument(typedArray).promise.then((pdf) => {
+      let textContent = "";
+      let promises = [];
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        promises.push(
+          pdf.getPage(i).then((page) =>
+            page.getTextContent().then((text) => {
+              text.items.forEach((item) => {
+                textContent += item.str + " ";
+              });
+            })
+          )
+        );
+      }
+
+      Promise.all(promises).then(() => summarizeText(textContent));
+    });
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+// Function to fetch data from the API
+function fetchData(apiUrl) {
+  fetch(apiUrl, {
+    method: "GET",
+    headers: {
+      "x-rapidapi-key": "effcfe6caemsh2f846ef3d69d1f9p1f089fjsn08b252090f86",
+      "x-rapidapi-host": "article-extractor-and-summarizer.p.rapidapi.com",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      summaryResult.textContent = data.summary || "Summary not available.";
+      resetForm();
+      removeAlert();
+    })
+    .catch(() => {
+      summaryResult.textContent = "Error processing response.";
+      removeAlert();
+    });
+}
+
+// Function to show a loading message
+function showLoadingMessage(message) {
+  alertElement = document.createElement("div");
+  alertElement.textContent = message;
+  alertElement.style.padding = "10px";
+  alertElement.style.marginTop = "10px";
+  alertElement.style.backgroundColor = "#ffeb3b";
+  alertElement.style.textAlign = "center";
+  document.body.appendChild(alertElement);
+}
+
+// Function to remove the loading message
+function removeAlert() {
+  if (alertElement && document.body.contains(alertElement)) {
+    document.body.removeChild(alertElement);
+  }
+}
+
+// Function to reset form fields properly while keeping them active
+function resetForm() {
+  urlInput.value = "";
+  textInput.value = "";
+  fileInput.value = "";
+
+  // Ensure all fields remain active for new input
+  urlInput.disabled = false;
+  textInput.disabled = false;
+  fileInput.disabled = false;
+}
