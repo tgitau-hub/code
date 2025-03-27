@@ -29,16 +29,13 @@ form.addEventListener("submit", function (event) {
 
 // Function to summarize a URL
 function summarizeURL(url) {
-  const apiUrl = `https://article-extractor-and-summarizer.p.rapidapi.com/summarize?url=${encodeURIComponent(
-    url
-  )}&lang=en&engine=2`;
+  const apiUrl = `https://article-extractor-and-summarizer.p.rapidapi.com/summarize?url=${encodeURIComponent(url)}&lang=en&engine=2`;
   fetchData(apiUrl);
 }
 
 // Function to summarize direct text input
 function summarizeText(text) {
-  const apiUrl =
-    "https://article-extractor-and-summarizer.p.rapidapi.com/summarize-text";
+  const apiUrl = "https://article-extractor-and-summarizer.p.rapidapi.com/summarize-text";
 
   fetch(apiUrl, {
     method: "POST",
@@ -51,7 +48,9 @@ function summarizeText(text) {
   })
     .then((response) => response.json())
     .then((data) => {
-      summaryResult.textContent = data.summary || "Summary not available.";
+      const summary = data.summary || "Summary not available.";
+      summaryResult.textContent = summary;
+      saveSummaryToFirestore(summary);
       resetForm();
       removeAlert();
     })
@@ -91,7 +90,7 @@ function processPDF(file) {
   reader.readAsArrayBuffer(file);
 }
 
-// Function to fetch data from the API
+// Function to fetch data from the API (for URL-based summarization)
 function fetchData(apiUrl) {
   fetch(apiUrl, {
     method: "GET",
@@ -102,7 +101,9 @@ function fetchData(apiUrl) {
   })
     .then((response) => response.json())
     .then((data) => {
-      summaryResult.textContent = data.summary || "Summary not available.";
+      const summary = data.summary || "Summary not available.";
+      summaryResult.textContent = summary;
+      saveSummaryToFirestore(summary);
       resetForm();
       removeAlert();
     })
@@ -136,8 +137,33 @@ function resetForm() {
   textInput.value = "";
   fileInput.value = "";
 
-  // Ensure all fields remain active for new input
   urlInput.disabled = false;
   textInput.disabled = false;
   fileInput.disabled = false;
+}
+
+// Function to save the summary to Firestore under the user's document
+function saveSummaryToFirestore(summary) {
+  // Ensure a user is logged in
+  const user = auth.currentUser;
+  if (user) {
+    // Initialize Firestore (make sure to include firebase-firestore-compat.js in your HTML)
+    const db = firebase.firestore();
+    // Save the summary in the "Summarizes" subcollection under the user's document
+    db.collection("users")
+      .doc(user.uid)
+      .collection("Summarizes")
+      .add({
+        text: summary,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      .then(() => {
+        console.log("Summary successfully saved to Firestore");
+      })
+      .catch((error) => {
+        console.error("Error saving summary to Firestore:", error);
+      });
+  } else {
+    console.log("No user is logged in; summary not saved.");
+  }
 }

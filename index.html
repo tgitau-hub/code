@@ -2,12 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Text Summarization</title>
 
     <!-- CSS -->
     <link rel="stylesheet" href="style.css" />
-    
+
+    <!-- Firebase SDKs -->
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <!-- Your Firebase initialization script (auth.js) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script src="auth.js"></script>
+
     <!-- PDF.js -->
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.12.313/build/pdf.min.js"></script>
   </head>
@@ -23,21 +33,22 @@
     <div class="wrapper">
       <span class="icon-close"><ion-icon name="close-outline"></ion-icon></span>
 
+      <!-- LOGIN FORM -->
       <div class="form-box login">
         <h2>Login</h2>
-        <form action="#">
+        <form id="loginForm" action="#">
           <div class="input-box">
             <span class="icon"><ion-icon name="mail"></ion-icon></span>
-            <input type="email" required />
-            <label>Email</label>
+            <input type="email" id="loginEmail" name="email" placeholder="Email" required />
+            <label for="loginEmail">Email</label>
           </div>
           <div class="input-box">
             <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
-            <input type="password" required />
-            <label>Password</label>
+            <input type="password" id="loginPassword" name="password" placeholder="Password" required />
+            <label for="loginPassword">Password</label>
           </div>
           <div class="remember-me">
-            <label><input type="checkbox" />Remember Me</label>
+            <label><input type="checkbox" name="rememberMe" /> Remember Me</label>
             <a href="#">Forgot Password?</a>
           </div>
           <button type="submit" class="btn">Login</button>
@@ -47,26 +58,27 @@
         </form>
       </div>
 
+      <!-- REGISTER FORM -->
       <div class="form-box register">
         <h2>Register</h2>
-        <form action="#">
+        <form id="registerForm" action="#">
           <div class="input-box">
             <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
-            <input type="text" required />
-            <label>Username</label>
+            <input type="text" id="registerUsername" name="username" placeholder="Username" required />
+            <label for="registerUsername">Username</label>
           </div>
           <div class="input-box">
             <span class="icon"><ion-icon name="mail"></ion-icon></span>
-            <input type="email" required />
-            <label>Email</label>
+            <input type="email" id="registerEmail" name="email" placeholder="Email" required />
+            <label for="registerEmail">Email</label>
           </div>
           <div class="input-box">
             <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
-            <input type="password" required />
-            <label>Password</label>
+            <input type="password" id="registerPassword" name="password" placeholder="Password" required />
+            <label for="registerPassword">Password</label>
           </div>
           <div class="remember-me">
-            <label><input type="checkbox" />Agree to terms & Conditions</label>
+            <label><input type="checkbox" name="terms" /> Agree to terms & Conditions</label>
           </div>
           <button type="submit" class="btn">Register</button>
           <div class="login-register">
@@ -81,19 +93,10 @@
       <h1>Text Summarization</h1>
       <form id="summarizeForm">
         <label for="urlInput">Enter URL:</label>
-        <input
-          type="text"
-          id="urlInput"
-          name="url"
-          placeholder="Enter a URL..."
-        />
+        <input type="text" id="urlInput" name="url" placeholder="Enter a URL..." />
 
         <label for="textInput">Or Enter Text:</label>
-        <textarea
-          id="textInput"
-          name="text"
-          placeholder="Paste text here..."
-        ></textarea>
+        <textarea id="textInput" name="text" placeholder="Paste text here..."></textarea>
 
         <label for="fileInput">Or Upload PDF:</label>
         <input type="file" id="fileInput" accept="application/pdf" />
@@ -103,17 +106,12 @@
       <div id="summaryResult"></div>
     </div>
 
+    <!-- External Scripts -->
     <!-- Axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <!-- Ionicons -->
-    <script
-      type="module"
-      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
-    ></script>
-    <script
-      nomodule
-      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
-    ></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
     <!-- Summarizer Script -->
     <script src="script.js"></script>
